@@ -10,12 +10,13 @@ goog.require('goog.ui.ColorPicker')
 
 /**
  * Class for a matrix field
- * @param {Array.<string>} colors The initial colors in '#rrggbb' format.
+ * @param {Array.<Object>} colors The initial colors in '#rrggbb' format.
  * @extends {Blockly.Field}
  * @constructor
  */
 Blockly.FieldMatrixColour = function (colors) {
   Blockly.FieldMatrixColour.superClass_.constructor.call(this, colors)
+  this.addArgType('matrixColor')
   this.setText(Blockly.Field.NBSP + Blockly.Field.NBSP + Blockly.Field.NBSP)
 
   if (colors) {
@@ -32,6 +33,7 @@ Blockly.FieldMatrixColour.PIXEL_HEIGHT = 5
 Blockly.FieldMatrixColour.PIXEL_PADDING = 1
 Blockly.FieldMatrixColour.TOP_PADDING = 4
 Blockly.FieldMatrixColour.BG_COLOR = '#000000'
+Blockly.FieldMatrixColour.DEFAULT_COLOR = '#444444'
 Blockly.FieldMatrixColour.ROWS = 7
 Blockly.FieldMatrixColour.COLUMNS = 7
 
@@ -50,8 +52,30 @@ Blockly.FieldMatrixColour.prototype.init = function () {
     this.fieldGroup_.style.display = 'none'
   }
 
-  this.createSvgMatrix([])
+  let colorArray = []
+  for (let i = 0; i <= 48; i++) {
+    let temp = Blockly.FieldMatrixColour.DEFAULT_COLOR
+    if (i === 0 || i === 6 || i === 42 || i === 48) {
+      temp = ''
+    }
+    colorArray = [...colorArray, { color: temp }]
+  }
+
+  this.setValue(colorArray)
   this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_)
+  this.mouseUpWrapper_ = Blockly.bindEventWithChecks_(
+    this.fieldGroup_,
+    'mouseup',
+    this,
+    this.onMouseUp_
+  )
+  Blockly.bindEventWithChecks_(
+    this.fieldGroup_,
+    'mousedown',
+    this,
+    this.onMouseDown_
+  )
+  this.render_()
 }
 
 /**
@@ -69,91 +93,6 @@ Blockly.FieldMatrixColour.prototype.render_ = function () {
 }
 
 /**
- * Return the current colour.
- * @return {Array.<string>} Array of current colors in '#rrggbb' format.
+ * Mouse cursor style when over the hotspot that initiates the editor.
  */
-Blockly.FieldMatrixColour.prototype.getValue = function () {
-  return this.colors_
-}
-
-/**
- * Set the colors.
- * @param {Array.<string>} colour The new colors array in '#rrggbb' format.
- */
-Blockly.FieldMatrixColour.prototype.setValue = function (colors) {
-  this.colors_ = colors
-  this.createSvgMatrix(this.colors_)
-}
-
-/**
- * Helper method for creating SVG elements.
- * @param {Array.<string>} colors Array of colors
- */
-Blockly.FieldMatrixColour.prototype.createSvgMatrix = function (colors) {
-  this.bg = Blockly.utils.createSvgElement(
-    'rect',
-    {
-      x: 0,
-      y: 4,
-      height: Blockly.FieldMatrixColour.MATRIX_HEIGHT,
-      width: Blockly.FieldMatrixColour.MATRIX_WIDTH
-    },
-    this.fieldGroup_
-  )
-  this.bg.setAttribute('fill', Blockly.FieldMatrixColour.BG_COLOR)
-
-  let loopCount = 0
-
-  for (let i = 0; i <= Blockly.FieldMatrixColour.ROWS - 1; i++) {
-    for (let j = 0; j <= Blockly.FieldMatrixColour.COLUMNS - 1; j++) {
-      const loopValues = this.matrixXValue(i, j)
-      i = loopValues.row
-      j = loopValues.column
-      if (i === 7 && j === 7) break
-
-      this.pixel = Blockly.utils.createSvgElement(
-        'rect',
-        {
-          x: Blockly.FieldMatrixColour.PIXEL_WIDTH * j +
-            Blockly.FieldMatrixColour.PIXEL_PADDING * (j + 1) +
-            Blockly.FieldMatrixColour.PIXEL_PADDING,
-          y: Blockly.FieldMatrixColour.PIXEL_WIDTH * i +
-            Blockly.FieldMatrixColour.PIXEL_PADDING * (i + 1) +
-            Blockly.FieldMatrixColour.PIXEL_PADDING +
-            Blockly.FieldMatrixColour.TOP_PADDING,
-          height: Blockly.FieldMatrixColour.PIXEL_HEIGHT,
-          width: Blockly.FieldMatrixColour.PIXEL_WIDTH
-        },
-        this.fieldGroup_
-      )
-
-      // TODO: Populate from colors array
-      this.pixel.setAttribute('fill', '#444444')
-      loopCount++
-    }
-  }
-}
-
-Blockly.FieldMatrixColour.prototype.matrixXValue = function (row, column) {
-  let rowValue = row
-  let columnValue = column
-
-  if (row === 0 && column === 0) {
-    columnValue = columnValue + 1
-  }
-
-  if (row === 0 && column === 6) {
-    rowValue = rowValue + 1
-    columnValue = 0
-  }
-
-  if (row === 6 && column === 0) {
-    columnValue = columnValue + 1
-  }
-
-  if (row === 6 && column === 6) {
-    rowValue = rowValue + 1
-    columnValue = 7
-  }
-  return { row: rowValue, column: columnValue }
-}
+Blockly.FieldMatrixColour.prototype.CURSOR = 'default'
