@@ -16,7 +16,6 @@ goog.require('goog.ui.ColorPicker')
  */
 Blockly.FieldMatrixColour = function (colors) {
   Blockly.FieldMatrixColour.superClass_.constructor.call(this, colors)
-  this.addArgType('matrixColor')
   this.setText(Blockly.Field.NBSP + Blockly.Field.NBSP + Blockly.Field.NBSP)
 
   if (colors) {
@@ -38,6 +37,11 @@ Blockly.FieldMatrixColour.ROWS = 7
 Blockly.FieldMatrixColour.COLUMNS = 7
 
 /**
+ * Mouse cursor style when over the hotspot that initiates the editor.
+ */
+Blockly.FieldMatrixColour.prototype.CURSOR = 'default'
+
+/**
  * Install this field on a block.
  */
 Blockly.FieldMatrixColour.prototype.init = function () {
@@ -52,16 +56,7 @@ Blockly.FieldMatrixColour.prototype.init = function () {
     this.fieldGroup_.style.display = 'none'
   }
 
-  let colorArray = []
-  for (let i = 0; i <= 48; i++) {
-    let temp = Blockly.FieldMatrixColour.DEFAULT_COLOR
-    if (i === 0 || i === 6 || i === 42 || i === 48) {
-      temp = ''
-    }
-    colorArray = [...colorArray, { color: temp }]
-  }
-
-  this.setValue(colorArray)
+  this.setValue(this.defaultColors())
   this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_)
   this.mouseUpWrapper_ = Blockly.bindEventWithChecks_(
     this.fieldGroup_,
@@ -93,6 +88,18 @@ Blockly.FieldMatrixColour.prototype.render_ = function () {
 }
 
 /**
- * Mouse cursor style when over the hotspot that initiates the editor.
+ * Helper method for creating default data.
+ * @return {Array.<Object>} colors Array of colors
  */
-Blockly.FieldMatrixColour.prototype.CURSOR = 'default'
+Blockly.FieldMatrixColour.prototype.defaultColors = function () {
+  let colorArray = []
+  for (let i = 0; i <= 48; i++) {
+    let temp = Blockly.FieldMatrixColour.DEFAULT_COLOR
+    if (i === 0 || i === 6 || i === 42 || i === 48) {
+      temp = ''
+    }
+    colorArray = [...colorArray, { color: temp }]
+  }
+
+  return colorArray
+}
