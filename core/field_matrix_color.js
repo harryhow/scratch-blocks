@@ -90,6 +90,14 @@ Blockly.FieldMatrixColour.prototype.render_ = function () {
 /**
  * Helper method for creating default data.
  * @return {Array.<Object>} colors Array of colors
+ * Object
+ * id - Cell's place in array
+ * frameId - Cell's order on the bit
+ * color - rrggbb value
+ * corner - is cell in a corner
+ * xRange - x position of the cell
+ * yRange - y position of the cell
+ * byte - value sent to the bit
  */
 Blockly.FieldMatrixColour.prototype.defaultColors = function () {
   const colorArray = [
