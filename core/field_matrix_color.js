@@ -56,7 +56,15 @@ Blockly.FieldMatrixColour.prototype.init = function () {
     this.fieldGroup_.style.display = 'none'
   }
 
-  this.setValue(this.defaultColors())
+  // For some reason, this init happens AFTER the initial color values have been
+  // loaded into the workspace. So, if there is initial color data already there,
+  // we should use it instead of defaults
+  var currentColors = this.getValue()
+  if (currentColors == '') {
+    this.setValue(this.defaultColors())
+  } else {
+    this.setValue(currentColors)
+  }
   this.sourceBlock_.getSvgRoot().appendChild(this.fieldGroup_)
   this.mouseUpWrapper_ = Blockly.bindEventWithChecks_(
     this.fieldGroup_,
